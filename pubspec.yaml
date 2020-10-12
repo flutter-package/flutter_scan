@@ -1,8 +1,7 @@
 name: scan
-description: A new flutter plugin project.
+description: flutter widget to scan qrcode customly.Get qrcode from image.
 version: 0.0.1
-author:
-homepage:
+homepage: https://github.com/chavesgu/FlutterScan
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
