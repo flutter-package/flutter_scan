@@ -25,9 +25,16 @@ android {
     compileSdkVersion 29
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 19
     }
     lintOptions {
         disable 'InvalidPackage'
     }
+    buildToolsVersion '28.0.3'
+}
+
+dependencies {
+    implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.zxing:core:3.3.0'
 }

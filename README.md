@@ -4,12 +4,11 @@ flutter widget to scan qrcode customly.
 
 Get qrcode from image.
 
-**currently is work for ios, android is developing**
-
 ### Features
 
 - use `ScanView` in widget tree to show scan view.
-- get qrcode string from image path.
+- custom identifiable area.
+- get qrcode string from image path by `Scan.parse`.
 
 ### prepare
 
@@ -21,6 +20,10 @@ info.list
 
 <key>io.flutter.embedded_views_preview</key>
 <string>YES</string>
+```
+##### android
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
 ```
 
 ```yaml
@@ -51,7 +54,7 @@ Container(
   ),
 ),
 ```
-you can use `controller.resume()` and `controller.pause()` resume/pause scan
+- you can use `controller.resume()` and `controller.pause()` resume/pause camera
 
 ```dart
 controller.resume();
@@ -60,6 +63,10 @@ controller.pause();
 - get qrcode string from image path
 ```dart
 String result = await Scan.parse(imagePath);
+```
+- toggle flash light
+```dart
+controller.toggleTorchMode();
 ```
 
 # License

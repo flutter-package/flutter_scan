@@ -79,7 +79,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
       NotificationCenter.default.addObserver(forName: .AVCaptureSessionDidStartRunning, object: nil, queue: .main) { _ in
         self.isSessionRun = true;
         if self.vw>0, self.scanShapeLayer==nil{
-          let areaWidth = self.vw * self.scale;
+          let areaWidth = min(self.vw, self.vh) * self.scale;
           self.drawScanLine(areaWidth: areaWidth);
           self.needDelScanLine = false;
         }
@@ -192,7 +192,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     }
     
     let scale:CGFloat = self.scale;
-    let areaWidth = self.vw * scale;
+    let areaWidth = min(self.vw, self.vh) * scale;
     let x = (self.vw - areaWidth) / 2;
     let y = (self.vh - areaWidth) / 2;
     let shortWidth:CGFloat = areaWidth * 0.1;

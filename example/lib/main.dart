@@ -25,6 +25,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     initPlatformState();
   }
+
   Future<void> initPlatformState() async {
     String platformVersion;
     try {
@@ -82,8 +83,8 @@ class _MyAppState extends State<MyApp> {
               ],
             ),
             Container(
-              width: 250,
-              height: 250,
+              width: 220,
+              height: 400,
               child: ScanView(
                 controller: controller,
                 scanAreaScale: .7,

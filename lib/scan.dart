@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Scan {
-  static const MethodChannel _channel =
-      const MethodChannel('chavesgu/scan');
+  static const MethodChannel _channel = const MethodChannel('chavesgu/scan');
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -24,8 +23,8 @@ class ScanView extends StatefulWidget {
     this.onCapture,
     this.scanLineColor = Colors.green,
     this.scanAreaScale = 0.7,
-  }): assert(scanAreaScale <= 1.0, 'scanAreaScale must <= 1.0'),
-      assert(scanAreaScale > 0.0, 'scanAreaScale must > 0.0');
+  })  : assert(scanAreaScale <= 1.0, 'scanAreaScale must <= 1.0'),
+        assert(scanAreaScale > 0.0, 'scanAreaScale must > 0.0');
 
   final ScanController controller;
   final CaptureCallback onCapture;
@@ -78,8 +77,8 @@ class _ScanViewState extends State<ScanView> {
     _channel = MethodChannel('chavesgu/scan/method_$id');
     _channel.setMethodCallHandler((MethodCall call) async {
       if (call.method == 'onCaptured') {
-        print(call.arguments.toString());
-        if (widget.onCapture!=null) widget.onCapture(call.arguments.toString());
+        if (widget.onCapture != null)
+          widget.onCapture(call.arguments.toString());
       }
     });
     widget.controller?._channel = _channel;
@@ -103,9 +102,11 @@ class ScanController {
   void resume() {
     _channel?.invokeMethod("resume");
   }
+
   void pause() {
     _channel?.invokeMethod("pause");
   }
+
   void toggleTorchMode() {
     _channel?.invokeMethod("toggleTorchMode");
   }
