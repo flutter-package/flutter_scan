@@ -38,6 +38,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     self.session = AVCaptureSession();
     self.channel = FlutterMethodChannel(name: "chavesgu/scan/method_\(viewId)", binaryMessenger: registrar.messenger());
     registrar.addMethodCallDelegate(self, channel: self.channel!);
+    registrar.addApplicationDelegate(self);
     
     let params = args as! NSDictionary;
     print(params);
@@ -115,7 +116,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   
   private func configSession() {
     do {
-      self.session!.beginConfiguration();
+//      self.session!.beginConfiguration();
       // add input
       var defaultVideoDevice: AVCaptureDevice?;
       if let cameraDevice =  AVCaptureDevice.default(for: .video)  {
@@ -143,7 +144,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
       }
       
       self.session!.sessionPreset = AVCaptureSession.Preset.high;
-      self.session!.commitConfiguration();
+//      self.session!.commitConfiguration();
       self.session!.startRunning();
     } catch {
       print("Couldn't create video device input: \(error)")
@@ -199,6 +200,18 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     let joinWidth:CGFloat = 0.5;
     
     if scale < 1 {
+      // 绘制遮罩
+      let rectPath = UIBezierPath(rect: CGRect(x: 0, y: 0, width: self.vw, height: self.vh));
+      let clipPath = UIBezierPath(rect: CGRect(x: x-joinWidth, y: y-joinWidth, width: areaWidth+joinWidth*2, height: areaWidth+joinWidth*2));
+      rectPath.append(clipPath);
+      rectPath.usesEvenOddFillRule = true;
+      let mask = CAShapeLayer();
+      mask.frame = self.bounds;
+      mask.path = rectPath.cgPath;
+      mask.fillRule = .evenOdd;
+      mask.fillColor = UIColor.init(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.5).cgColor;
+      
+      self.layer.insertSublayer(mask, above: self.captureLayer);
       // 绘制四个角
       let path = UIBezierPath();
       path.move(to: CGPoint(x: x + joinWidth, y: y));
@@ -282,10 +295,20 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     animationGroup.animations = [scanPositionAnimation, scanOpacityAnimation];
     animationGroup.repeatCount = MAXFLOAT;
     animationGroup.duration = CFTimeInterval(areaWidth/175*1.5);
+    animationGroup.isRemovedOnCompletion = false;
     scanShapeLayer.add(animationGroup, forKey: nil);
     
     self.scanShapeLayer = scanShapeLayer;
     self.layer.insertSublayer(scanShapeLayer, above: self.captureLayer);
+  }
+  
+  public override func layoutSubviews() {
+    super.layoutSubviews();
+    self.captureLayer?.frame = self.bounds;
+    
+    self.vw = self.bounds.width;
+    self.vh = self.bounds.height;
+    self.updateScanArea();
   }
   
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -298,13 +321,14 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     }
   }
   
-  public override func layoutSubviews() {
-    super.layoutSubviews();
-    self.captureLayer?.frame = self.bounds;
-    
-    self.vw = self.bounds.width;
-    self.vh = self.bounds.height;
-    self.updateScanArea();
+  public func applicationDidEnterBackground(_ application: UIApplication) {
+    // 后台
+    self.pause();
+  }
+  
+  public func applicationDidBecomeActive(_ application: UIApplication) {
+    // 前台
+    self.resume();
   }
   
   deinit {
