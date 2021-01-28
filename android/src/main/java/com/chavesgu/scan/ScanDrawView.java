@@ -153,6 +153,7 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
             canvas.drawLine(x, y+width, x, y+width-shortWidth, paint);
 
             // mask
+            canvas.save();
             Path clipPath = new Path();
             clipPath.addRect(x-2,y-2,(float)(x+areaWidth+2),(float)(y+areaWidth+2),Path.Direction.CCW);
             canvas.clipPath(clipPath, Region.Op.DIFFERENCE);
@@ -163,6 +164,7 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
             maskPaint.setStyle(Paint.Style.FILL);
 
             canvas.drawRect(0, 0, (float) vw, (float)vh, maskPaint);
+            canvas.restore();
         }
 
         if (running) {

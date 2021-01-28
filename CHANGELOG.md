@@ -1,3 +1,5 @@
+## 0.0.5
+- fix android ui
 ## 0.0.4
 - fix android ui
 ## 0.0.3
