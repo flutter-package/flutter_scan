@@ -1,3 +1,5 @@
+## 0.0.4
+- fix android ui
 ## 0.0.3
 - fix ios scan animation
 - add scan area mask

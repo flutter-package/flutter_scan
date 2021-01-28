@@ -24,6 +24,12 @@ info.list
 ##### android
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
+
+<application>
+  <meta-data
+    android:name="flutterEmbedding"
+    android:value="2" />
+</application>
 ```
 
 ```yaml

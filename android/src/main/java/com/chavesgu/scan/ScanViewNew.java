@@ -121,6 +121,9 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
             }
             @Override
             public void onActivityDestroyed(@NonNull Activity activity) {
+                if (activity == _activity) {
+                    _pause();
+                }
             }
         });
     }
