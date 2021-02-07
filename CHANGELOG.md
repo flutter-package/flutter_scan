@@ -1,3 +1,5 @@
+## 0.0.6
+- add android registerWith
 ## 0.0.5
 - fix android ui
 ## 0.0.4

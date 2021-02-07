@@ -39,6 +39,7 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     private Context context;
     private Activity activity;
     private ActivityPluginBinding activityPluginBinding;
+    private PluginRegistry.Registrar registrar;
 
     private double vw;
     private double vh;
@@ -52,6 +53,18 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.activityPluginBinding = activityPluginBinding;
         activityPluginBinding.addRequestPermissionsResultListener(this);
+        this.scale = (double) args.get("scale");
+
+        checkPermission();
+    }
+    public ScanViewNew(Context context, Activity activity, @NonNull PluginRegistry.Registrar registrar, @Nullable Map<String, Object> args) {
+        super(context, null);
+
+        this.context = context;
+        this.activity = activity;
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        this.registrar = registrar;
+        registrar.addRequestPermissionsResultListener(this);
         this.scale = (double) args.get("scale");
 
         checkPermission();

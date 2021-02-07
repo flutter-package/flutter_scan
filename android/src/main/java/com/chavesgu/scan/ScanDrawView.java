@@ -82,7 +82,7 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
 
         // init animate
         final float scanLineWidth = (float) (areaWidth * 0.8);
-        final long duration = (long) (areaWidth/175/dpi*1.5*800);
+        final long duration = (long) (areaWidth/175/dpi*1.5*1000);
         positionAnimator = ValueAnimator.ofFloat(0, scanLineWidth);
         positionAnimator.setDuration(duration);
         positionAnimator.setInterpolator(null);
