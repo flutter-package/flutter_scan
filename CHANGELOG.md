@@ -1,3 +1,5 @@
+## 0.0.7
+- fix android/ios dispose bug
 ## 0.0.6
 - add android registerWith
 ## 0.0.5

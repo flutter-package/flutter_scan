@@ -40,6 +40,7 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     private Activity activity;
     private ActivityPluginBinding activityPluginBinding;
     private PluginRegistry.Registrar registrar;
+    private Application.ActivityLifecycleCallbacks lifecycleCallback;
 
     private double vw;
     private double vh;
@@ -71,7 +72,42 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     }
 
     private void start() {
-        addListenLifecycle(activity);
+        lifecycleCallback = new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
+            }
+            @Override
+            public void onActivityStarted(@NonNull Activity activity) {
+            }
+
+            @Override
+            public void onActivityResumed(@NonNull Activity _activity) {
+                if (activity == _activity) {
+                    _resume();
+                }
+            }
+
+            @Override
+            public void onActivityPaused(@NonNull Activity _activity) {
+                if (activity == _activity) {
+                    _pause();
+                }
+            }
+
+            @Override
+            public void onActivityStopped(@NonNull Activity activity) {
+            }
+            @Override
+            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
+            }
+            @Override
+            public void onActivityDestroyed(@NonNull Activity _activity) {
+                if (activity == _activity) {
+                    _pause();
+                }
+            }
+        };
+        addListenLifecycle();
         this.decodeContinuous(new BarcodeCallback() {
             @Override
             public void barcodeResult(BarcodeResult result) {
@@ -100,45 +136,8 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
                 activity.checkSelfPermission(Manifest.permission.CAMERA) == PERMISSION_GRANTED;
     }
 
-    private void addListenLifecycle(Activity activity) {
-        final Activity _activity = activity;
-        _activity.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-            }
-            @Override
-            public void onActivityStarted(@NonNull Activity activity) {
-            }
-
-            @Override
-            public void onActivityResumed(@NonNull Activity activity) {
-                if (activity == _activity) {
-                    Log.i(LOG_TAG, "activity resume");
-                    _resume();
-                }
-            }
-
-            @Override
-            public void onActivityPaused(@NonNull Activity activity) {
-                if (activity == _activity) {
-                    Log.i(LOG_TAG, "activity pause");
-                    _pause();
-                }
-            }
-
-            @Override
-            public void onActivityStopped(@NonNull Activity activity) {
-            }
-            @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-            }
-            @Override
-            public void onActivityDestroyed(@NonNull Activity activity) {
-                if (activity == _activity) {
-                    _pause();
-                }
-            }
-        });
+    private void addListenLifecycle() {
+        activity.getApplication().registerActivityLifecycleCallbacks(lifecycleCallback);
     }
 
     public void _resume() {
@@ -152,6 +151,12 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     }
     public void setCaptureListener(CaptureListener captureListener) {
         this.captureListener = captureListener;
+    }
+    public void dispose() {
+        this.stopDecoding();
+        _pause();
+        activity.getApplication().unregisterActivityLifecycleCallbacks(lifecycleCallback);
+        lifecycleCallback = null;
     }
 
     @Override

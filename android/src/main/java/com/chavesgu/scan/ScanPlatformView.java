@@ -77,7 +77,7 @@ public class ScanPlatformView implements PlatformView, MethodChannel.MethodCallH
 
     @Override
     public void dispose() {
-
+        this.scanViewNew.dispose();
     }
 
     @Override

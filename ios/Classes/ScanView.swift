@@ -41,7 +41,6 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     registrar.addApplicationDelegate(self);
     
     let params = args as! NSDictionary;
-    print(params);
     self.scale = params["scale"] as! CGFloat;
     let r = params["r"] as! CGFloat;
     let g = params["g"] as! CGFloat;
@@ -76,27 +75,30 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     }
     
     if self.permission {
+      NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStart), name: .AVCaptureSessionDidStartRunning, object: nil);
       
-      NotificationCenter.default.addObserver(forName: .AVCaptureSessionDidStartRunning, object: nil, queue: .main) { _ in
-        self.isSessionRun = true;
-        if self.vw>0, self.scanShapeLayer==nil{
-          let areaWidth = min(self.vw, self.vh) * self.scale;
-          self.drawScanLine(areaWidth: areaWidth);
-          self.needDelScanLine = false;
-        }
-      };
-      
-      NotificationCenter.default.addObserver(forName: .AVCaptureSessionDidStopRunning, object: nil, queue: .main) { _ in
-        self.isSessionRun = false;
-        if let scanShapeLayer = self.scanShapeLayer {
-          self.needDelScanLine = true;
-          scanShapeLayer.removeAllAnimations();
-          scanShapeLayer.removeFromSuperlayer();
-          self.scanShapeLayer = nil;
-        }
-      }
+      NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStop), name: .AVCaptureSessionDidStopRunning, object: nil);
       
       self.configSession();
+    }
+  }
+  
+  @objc func sessionDidStart() {
+    self.isSessionRun = true;
+    if self.vw>0, self.scanShapeLayer==nil{
+      let areaWidth = min(self.vw, self.vh) * self.scale;
+      self.drawScanLine(areaWidth: areaWidth);
+      self.needDelScanLine = false;
+    }
+  }
+  
+  @objc func sessionDidStop() {
+    self.isSessionRun = false;
+    if let scanShapeLayer = self.scanShapeLayer {
+      self.needDelScanLine = true;
+      scanShapeLayer.removeAllAnimations();
+      scanShapeLayer.removeFromSuperlayer();
+      self.scanShapeLayer = nil;
     }
   }
   
@@ -331,9 +333,13 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     self.resume();
   }
   
-  deinit {
+  public override func removeFromSuperview() {
+    // clear
     self.session?.stopRunning();
     NotificationCenter.default.removeObserver(self);
+    self.session = nil;
+    self.sessionQueue = nil;
+    super.removeFromSuperview();
   }
   
   required init?(coder: NSCoder) {
