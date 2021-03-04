@@ -1,3 +1,5 @@
+## 1.0.0
+- support null safety
 ## 0.0.7
 - fix android/ios dispose bug
 ## 0.0.6

@@ -26,8 +26,8 @@ class ScanView extends StatefulWidget {
   })  : assert(scanAreaScale <= 1.0, 'scanAreaScale must <= 1.0'),
         assert(scanAreaScale > 0.0, 'scanAreaScale must > 0.0');
 
-  final ScanController controller;
-  final CaptureCallback onCapture;
+  final ScanController? controller;
+  final CaptureCallback? onCapture;
   final Color scanLineColor;
   final double scanAreaScale;
 
@@ -36,7 +36,7 @@ class ScanView extends StatefulWidget {
 }
 
 class _ScanViewState extends State<ScanView> {
-  MethodChannel _channel;
+  MethodChannel? _channel;
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +75,9 @@ class _ScanViewState extends State<ScanView> {
 
   void _onPlatformViewCreated(int id) {
     _channel = MethodChannel('chavesgu/scan/method_$id');
-    _channel.setMethodCallHandler((MethodCall call) async {
+    _channel?.setMethodCallHandler((MethodCall call) async {
       if (call.method == 'onCaptured') {
-        if (widget.onCapture != null)
-          widget.onCapture(call.arguments.toString());
+        if (widget.onCapture != null) widget.onCapture!(call.arguments.toString());
       }
     });
     widget.controller?._channel = _channel;
@@ -95,7 +94,7 @@ class ScanArea {
 }
 
 class ScanController {
-  MethodChannel _channel;
+  MethodChannel? _channel;
 
   ScanController();
 

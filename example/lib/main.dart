@@ -52,30 +52,30 @@ class _MyAppState extends State<MyApp> {
             Text('Running on: $_platformVersion\n'),
             Wrap(
               children: [
-                RaisedButton(
+                ElevatedButton(
                   child: Text("toggleTorchMode"),
                   onPressed: () {
                     controller.toggleTorchMode();
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text("pause"),
                   onPressed: () {
                     controller.pause();
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text("resume"),
                   onPressed: () {
                     controller.resume();
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text("parse from image"),
                   onPressed: () async {
-                    List<Media> res = await ImagesPicker.pick();
+                    List<Media>? res = await ImagesPicker.pick();
                     if (res != null) {
-                      String qrcode = await Scan.parse(res[0].path);
+                      String qrcode = await Scan.parse(res[0].path!);
                       print(qrcode);
                     }
                   },
