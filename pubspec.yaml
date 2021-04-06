@@ -1,6 +1,6 @@
 name: scan
 description: flutter widget to scan qrcode customly.Get qrcode from image path.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/chavesgu/FlutterScan
 
 environment:

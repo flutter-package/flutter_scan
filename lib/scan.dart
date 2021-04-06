@@ -77,7 +77,8 @@ class _ScanViewState extends State<ScanView> {
     _channel = MethodChannel('chavesgu/scan/method_$id');
     _channel?.setMethodCallHandler((MethodCall call) async {
       if (call.method == 'onCaptured') {
-        if (widget.onCapture != null) widget.onCapture!(call.arguments.toString());
+        if (widget.onCapture != null)
+          widget.onCapture!(call.arguments.toString());
       }
     });
     widget.controller?._channel = _channel;

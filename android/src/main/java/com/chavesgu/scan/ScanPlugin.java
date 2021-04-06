@@ -37,20 +37,6 @@ public class ScanPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwa
   private Activity activity;
   private FlutterPluginBinding flutterPluginBinding;
 
-  public static void registerWith(Registrar registrar) {
-    ScanPlugin instance = new ScanPlugin();
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), "chavesgu/scan");
-    channel.setMethodCallHandler(instance);
-    instance.channel = channel;
-    instance.activity = registrar.activity();
-    registrar.platformViewRegistry().registerViewFactory("chavesgu/scan_view", new ScanViewFactory(
-            registrar.messenger(),
-            registrar.context(),
-            registrar.activity(),
-            registrar
-    ));
-  }
-
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     this.flutterPluginBinding = flutterPluginBinding;

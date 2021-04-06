@@ -1,3 +1,6 @@
+## 1.0.1
+- remove app lifecycle auto resume
+- fix ios permission
 ## 1.0.0
 - support null safety
 ## 0.0.7

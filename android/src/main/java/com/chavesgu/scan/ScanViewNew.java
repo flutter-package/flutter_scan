@@ -39,7 +39,6 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     private Context context;
     private Activity activity;
     private ActivityPluginBinding activityPluginBinding;
-    private PluginRegistry.Registrar registrar;
     private Application.ActivityLifecycleCallbacks lifecycleCallback;
 
     private double vw;
@@ -58,55 +57,40 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
 
         checkPermission();
     }
-    public ScanViewNew(Context context, Activity activity, @NonNull PluginRegistry.Registrar registrar, @Nullable Map<String, Object> args) {
-        super(context, null);
-
-        this.context = context;
-        this.activity = activity;
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        this.registrar = registrar;
-        registrar.addRequestPermissionsResultListener(this);
-        this.scale = (double) args.get("scale");
-
-        checkPermission();
-    }
 
     private void start() {
-        lifecycleCallback = new Application.ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-            }
-            @Override
-            public void onActivityStarted(@NonNull Activity activity) {
-            }
-
-            @Override
-            public void onActivityResumed(@NonNull Activity _activity) {
-                if (activity == _activity) {
-                    _resume();
-                }
-            }
-
-            @Override
-            public void onActivityPaused(@NonNull Activity _activity) {
-                if (activity == _activity) {
-                    _pause();
-                }
-            }
-
-            @Override
-            public void onActivityStopped(@NonNull Activity activity) {
-            }
-            @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-            }
-            @Override
-            public void onActivityDestroyed(@NonNull Activity _activity) {
-                if (activity == _activity) {
-                    _pause();
-                }
-            }
-        };
+//        lifecycleCallback = new Application.ActivityLifecycleCallbacks() {
+//            @Override
+//            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
+//            }
+//            @Override
+//            public void onActivityStarted(@NonNull Activity activity) {
+//            }
+//            @Override
+//            public void onActivityResumed(@NonNull Activity _activity) {
+//                if (activity == _activity) {
+//                    _resume();
+//                }
+//            }
+//            @Override
+//            public void onActivityPaused(@NonNull Activity _activity) {
+//                if (activity == _activity) {
+//                    _pause();
+//                }
+//            }
+//            @Override
+//            public void onActivityStopped(@NonNull Activity activity) {
+//            }
+//            @Override
+//            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
+//            }
+//            @Override
+//            public void onActivityDestroyed(@NonNull Activity _activity) {
+//                if (activity == _activity) {
+//                    _pause();
+//                }
+//            }
+//        };
         addListenLifecycle();
         this.decodeContinuous(new BarcodeCallback() {
             @Override
@@ -137,7 +121,7 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     }
 
     private void addListenLifecycle() {
-        activity.getApplication().registerActivityLifecycleCallbacks(lifecycleCallback);
+//        activity.getApplication().registerActivityLifecycleCallbacks(lifecycleCallback);
     }
 
     public void _resume() {
@@ -155,8 +139,8 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     public void dispose() {
         this.stopDecoding();
         _pause();
-        activity.getApplication().unregisterActivityLifecycleCallbacks(lifecycleCallback);
-        lifecycleCallback = null;
+//        activity.getApplication().unregisterActivityLifecycleCallbacks(lifecycleCallback);
+//        lifecycleCallback = null;
     }
 
     @Override

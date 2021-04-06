@@ -16,7 +16,6 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     //
   }
   
-  var sessionQueue: DispatchQueue!;
   var session: AVCaptureSession?;
   var isSessionRun: Bool = false;
   var captureLayer: AVCaptureVideoPreviewLayer?;
@@ -25,7 +24,6 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   var scanColor: UIColor!;
   var needDelScanLine: Bool = false;
   var channel: FlutterMethodChannel?;
-  var permission = false;
   
   var vw:CGFloat = 0;
   var vh:CGFloat = 0;
@@ -34,11 +32,10 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   init(_ frame:CGRect, viewId:Int64, args: Any?,registrar: FlutterPluginRegistrar) {
     super.init(frame: frame);
     
-    self.sessionQueue = DispatchQueue(label: "session queue");
     self.session = AVCaptureSession();
     self.channel = FlutterMethodChannel(name: "chavesgu/scan/method_\(viewId)", binaryMessenger: registrar.messenger());
     registrar.addMethodCallDelegate(self, channel: self.channel!);
-    registrar.addApplicationDelegate(self);
+//    registrar.addApplicationDelegate(self);
     
     let params = args as! NSDictionary;
     self.scale = params["scale"] as! CGFloat;
@@ -55,31 +52,15 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     layer.videoGravity = .resizeAspectFill;
     self.layer.addSublayer(layer);
     
-//    self.addSubview(CrossView(frame: frame));
+    NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStart), name: .AVCaptureSessionDidStartRunning, object: nil);
+    
+    NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStop), name: .AVCaptureSessionDidStopRunning, object: nil);
     
     // 获取相机权限
-    switch AVCaptureDevice.authorizationStatus(for: .video) {
-    case .authorized:
-      self.permission = true;
-      break;
-        
-    case .notDetermined:
-      self.sessionQueue.suspend();
-      AVCaptureDevice.requestAccess(for: .video, completionHandler: { granted in
-        self.permission = granted;
-        self.sessionQueue.resume();
-      })
-    default:
-        // The user has previously denied access.
-      self.permission = false;
-    }
-    
-    if self.permission {
-      NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStart), name: .AVCaptureSessionDidStartRunning, object: nil);
-      
-      NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStop), name: .AVCaptureSessionDidStopRunning, object: nil);
-      
-      self.configSession();
+    AVCaptureDevice.requestAccess(for: .video) { (permission) in
+      if (permission) {
+        self.configSession();
+      }
     }
   }
   
@@ -323,22 +304,21 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     }
   }
   
-  public func applicationDidEnterBackground(_ application: UIApplication) {
-    // 后台
-    self.pause();
-  }
-  
-  public func applicationDidBecomeActive(_ application: UIApplication) {
-    // 前台
-    self.resume();
-  }
+//  public func applicationDidEnterBackground(_ application: UIApplication) {
+//    // 后台
+//    self.pause();
+//  }
+//
+//  public func applicationDidBecomeActive(_ application: UIApplication) {
+//    // 前台
+//    self.resume();
+//  }
   
   public override func removeFromSuperview() {
     // clear
     self.session?.stopRunning();
     NotificationCenter.default.removeObserver(self);
     self.session = nil;
-    self.sessionQueue = nil;
     super.removeFromSuperview();
   }
   

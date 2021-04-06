@@ -24,7 +24,6 @@ public class ScanPlatformView implements PlatformView, MethodChannel.MethodCallH
     private Context context;
     private Activity activity;
     private ActivityPluginBinding activityPluginBinding;
-    private PluginRegistry.Registrar registrar;
     private ParentView parentView;
 //    private ScanView scanView;
     private ScanViewNew scanViewNew;
@@ -40,27 +39,8 @@ public class ScanPlatformView implements PlatformView, MethodChannel.MethodCallH
         initForBinding(args);
     }
 
-    ScanPlatformView(@NonNull BinaryMessenger messenger, @NonNull Context context, @NonNull Activity activity, PluginRegistry.Registrar registrar, int viewId, @Nullable Map<String, Object> args) {
-        channel = new MethodChannel(messenger, "chavesgu/scan/method_"+viewId);
-        channel.setMethodCallHandler(this);
-        this.context = context;
-        this.activity = activity;
-        this.registrar = registrar;
-        initForRegistrar(args);
-    }
-
     private void initForBinding(Map<String, Object> args) {
         this.scanViewNew = new ScanViewNew(context, activity, activityPluginBinding,  args);
-        this.scanViewNew.setCaptureListener(this);
-
-        this.scanDrawView = new ScanDrawView(context, activity, args);
-
-        this.parentView = new ParentView(context);
-        this.parentView.addView(this.scanViewNew);
-        this.parentView.addView(this.scanDrawView);
-    }
-    private void initForRegistrar(Map<String, Object> args) {
-        this.scanViewNew = new ScanViewNew(context, activity, registrar,  args);
         this.scanViewNew.setCaptureListener(this);
 
         this.scanDrawView = new ScanDrawView(context, activity, args);
