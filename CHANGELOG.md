@@ -1,3 +1,5 @@
+## 1.0.2
+- fix some bug
 ## 1.0.1
 - remove app lifecycle auto resume
 - fix ios permission

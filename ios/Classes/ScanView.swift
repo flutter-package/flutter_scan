@@ -16,6 +16,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     //
   }
   
+  var dispatchGroup: DispatchGroup?;
   var session: AVCaptureSession?;
   var isSessionRun: Bool = false;
   var captureLayer: AVCaptureVideoPreviewLayer?;
@@ -32,6 +33,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   init(_ frame:CGRect, viewId:Int64, args: Any?,registrar: FlutterPluginRegistrar) {
     super.init(frame: frame);
     
+    self.dispatchGroup = DispatchGroup();
     self.session = AVCaptureSession();
     self.channel = FlutterMethodChannel(name: "chavesgu/scan/method_\(viewId)", binaryMessenger: registrar.messenger());
     registrar.addMethodCallDelegate(self, channel: self.channel!);
@@ -57,7 +59,13 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStop), name: .AVCaptureSessionDidStopRunning, object: nil);
     
     // 获取相机权限
-    AVCaptureDevice.requestAccess(for: .video) { (permission) in
+    var permission: Bool = false;
+    self.dispatchGroup!.enter();
+    AVCaptureDevice.requestAccess(for: .video) { (bool) in
+      permission = bool;
+      self.dispatchGroup!.leave();
+    }
+    self.dispatchGroup!.notify(queue: .main) {
       if (permission) {
         self.configSession();
       }
@@ -319,6 +327,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     self.session?.stopRunning();
     NotificationCenter.default.removeObserver(self);
     self.session = nil;
+    self.dispatchGroup = nil;
     super.removeFromSuperview();
   }
   
