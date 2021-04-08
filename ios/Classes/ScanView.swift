@@ -16,7 +16,8 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     //
   }
   
-  var dispatchGroup: DispatchGroup?;
+  var loaded: Bool = false;
+  var queue: DispatchQueue?;
   var session: AVCaptureSession?;
   var isSessionRun: Bool = false;
   var captureLayer: AVCaptureVideoPreviewLayer?;
@@ -32,8 +33,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   
   init(_ frame:CGRect, viewId:Int64, args: Any?,registrar: FlutterPluginRegistrar) {
     super.init(frame: frame);
-    
-    self.dispatchGroup = DispatchGroup();
+    self.queue = DispatchQueue.init(label: "com.chavesgu.scan", attributes: .concurrent);
     self.session = AVCaptureSession();
     self.channel = FlutterMethodChannel(name: "chavesgu/scan/method_\(viewId)", binaryMessenger: registrar.messenger());
     registrar.addMethodCallDelegate(self, channel: self.channel!);
@@ -57,18 +57,69 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStart), name: .AVCaptureSessionDidStartRunning, object: nil);
     
     NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStop), name: .AVCaptureSessionDidStopRunning, object: nil);
-    
+  }
+  
+  private func load() {
+    self.loaded = true;
     // 获取相机权限
-    var permission: Bool = false;
-    self.dispatchGroup!.enter();
     AVCaptureDevice.requestAccess(for: .video) { (bool) in
-      permission = bool;
-      self.dispatchGroup!.leave();
-    }
-    self.dispatchGroup!.notify(queue: .main) {
-      if (permission) {
+      if (bool) {
         self.configSession();
       }
+    }
+  }
+  
+  private func configSession() {
+    do {
+      self.session!.beginConfiguration();
+      // add input
+      var defaultVideoDevice: AVCaptureDevice?;
+      if let cameraDevice =  AVCaptureDevice.default(for: .video)  {
+        defaultVideoDevice = cameraDevice
+      }
+      guard let videoDevice = defaultVideoDevice else {
+        print("Default video device is unavailable.")
+        return
+      }
+      let videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice);
+      if self.session!.canAddInput(videoDeviceInput) {
+        self.session!.addInput(videoDeviceInput);
+      }
+      
+      // add output
+      let metadataOutput = AVCaptureMetadataOutput();
+      self.metadataOutput = metadataOutput;
+      if self.session!.canAddOutput(metadataOutput) {
+        self.session!.addOutput(metadataOutput);
+        metadataOutput.setMetadataObjectsDelegate(self, queue: .main);
+        metadataOutput.metadataObjectTypes = [.aztec, .code128, .code39, .code39Mod43, .code93, .dataMatrix, .ean13, .ean8, .interleaved2of5, .itf14, .pdf417, .qr];
+      } else {
+          print("Could not add photo output to the session")
+          return
+      }
+      
+      self.session!.sessionPreset = AVCaptureSession.Preset.high;
+      self.setScanArea();
+      self.session!.commitConfiguration();
+      self.session!.startRunning();
+//      self.queue!.async {
+//        self.session!.startRunning();
+//      }
+    } catch {
+      print("Couldn't create video device input: \(error)")
+    }
+  }
+  
+  // 设置扫描区域
+  private func setScanArea() {
+    let scale:CGFloat = self.scale;
+    let areaWidth = min(self.vw, self.vh) * scale;
+    let x = (self.vw - areaWidth) / 2;
+    let y = (self.vh - areaWidth) / 2;
+    if let output = self.metadataOutput,let captureLayer = self.captureLayer {
+      let originRect = CGRect(x: x, y: y, width: areaWidth, height: areaWidth);
+      let rect = captureLayer.metadataOutputRectConverted(fromLayerRect: originRect);
+      output.rectOfInterest = rect;
     }
   }
   
@@ -91,92 +142,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     }
   }
   
-  // 扫码结果
-  public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-    self.session!.stopRunning();
-    if let metadataObject = metadataObjects.first {
-      guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
-      guard let stringValue = readableObject.stringValue else { return }
-      if #available(iOS 10.0, *) {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred();
-      }
-      self.channel!.invokeMethod("onCaptured", arguments: stringValue);
-    }
-  }
-  
-  
-  private func configSession() {
-    do {
-//      self.session!.beginConfiguration();
-      // add input
-      var defaultVideoDevice: AVCaptureDevice?;
-      if let cameraDevice =  AVCaptureDevice.default(for: .video)  {
-        defaultVideoDevice = cameraDevice
-      }
-      guard let videoDevice = defaultVideoDevice else {
-        print("Default video device is unavailable.")
-        return
-      }
-      let videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice);
-      if self.session!.canAddInput(videoDeviceInput) {
-        self.session!.addInput(videoDeviceInput);
-      }
-      
-      // add output
-      let metadataOutput = AVCaptureMetadataOutput();
-      self.metadataOutput = metadataOutput;
-      if self.session!.canAddOutput(metadataOutput) {
-        self.session!.addOutput(metadataOutput);
-        metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main);
-        metadataOutput.metadataObjectTypes = [.aztec, .code128, .code39, .code39Mod43, .code93, .dataMatrix, .ean13, .ean8, .interleaved2of5, .itf14, .pdf417, .qr];
-      } else {
-          print("Could not add photo output to the session")
-          return
-      }
-      
-      self.session!.sessionPreset = AVCaptureSession.Preset.high;
-//      self.session!.commitConfiguration();
-      self.session!.startRunning();
-    } catch {
-      print("Couldn't create video device input: \(error)")
-    }
-  }
-  
-  private func resume() {
-    if !self.isSessionRun {
-      self.session?.startRunning();
-    }
-  }
-  
-  private func pause() {
-    if self.isSessionRun {
-      self.session?.stopRunning();
-    }
-  }
-  
-  private func toggleTorchMode() {
-    guard let device = AVCaptureDevice.default(for: .video) else { return }
-    guard device.hasTorch else { return }
-    do {
-      try device.lockForConfiguration();
-      
-      if (device.torchMode == AVCaptureDevice.TorchMode.on) {
-        device.torchMode = AVCaptureDevice.TorchMode.off;
-      } else {
-        do {
-          try device.setTorchModeOn(level: 1.0);
-        } catch {
-          print(error);
-        }
-      }
-        
-      device.unlockForConfiguration();
-    } catch {
-      print(error);
-    }
-  }
-  
-  private func updateScanArea() {
+  private func drawScanArea() {
     for subLayer in self.layer.sublayers! {
       if subLayer.name != "capture" {
         subLayer.removeFromSuperlayer();
@@ -245,14 +211,6 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     if !self.needDelScanLine {
       self.drawScanLine(areaWidth: areaWidth);
     }
-    
-    if let output = self.metadataOutput,let captureLayer = self.captureLayer {
-      DispatchQueue.main.async { // 主线程中才能正确转换坐标
-        let originRect = CGRect(x: x, y: y, width: areaWidth, height: areaWidth);
-        let rect = captureLayer.metadataOutputRectConverted(fromLayerRect: originRect);
-        output.rectOfInterest = rect;
-      }
-    }
   }
   
   private func drawScanLine(areaWidth: CGFloat) {
@@ -296,10 +254,39 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   public override func layoutSubviews() {
     super.layoutSubviews();
     self.captureLayer?.frame = self.bounds;
-    
     self.vw = self.bounds.width;
     self.vh = self.bounds.height;
-    self.updateScanArea();
+    self.drawScanArea();
+    if !self.loaded {
+      self.load();
+    }
+  }
+  
+  public override func removeFromSuperview() {
+    // clear
+    self.session?.stopRunning();
+    NotificationCenter.default.removeObserver(self);
+    self.loaded = false;
+    self.session = nil;
+    self.queue = nil;
+    super.removeFromSuperview();
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  // 扫码结果
+  public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+    self.session!.stopRunning();
+    if let metadataObject = metadataObjects.first {
+      guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
+      guard let stringValue = readableObject.stringValue else { return }
+      if #available(iOS 10.0, *) {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred();
+      }
+      self.channel!.invokeMethod("onCaptured", arguments: stringValue);
+    }
   }
   
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -312,26 +299,37 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     }
   }
   
-//  public func applicationDidEnterBackground(_ application: UIApplication) {
-//    // 后台
-//    self.pause();
-//  }
-//
-//  public func applicationDidBecomeActive(_ application: UIApplication) {
-//    // 前台
-//    self.resume();
-//  }
-  
-  public override func removeFromSuperview() {
-    // clear
-    self.session?.stopRunning();
-    NotificationCenter.default.removeObserver(self);
-    self.session = nil;
-    self.dispatchGroup = nil;
-    super.removeFromSuperview();
+  private func resume() {
+    if !self.isSessionRun {
+      self.session?.startRunning();
+    }
   }
   
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
+  private func pause() {
+    if self.isSessionRun {
+      self.session?.stopRunning();
+    }
+  }
+  
+  private func toggleTorchMode() {
+    guard let device = AVCaptureDevice.default(for: .video) else { return }
+    guard device.hasTorch else { return }
+    do {
+      try device.lockForConfiguration();
+      
+      if (device.torchMode == AVCaptureDevice.TorchMode.on) {
+        device.torchMode = AVCaptureDevice.TorchMode.off;
+      } else {
+        do {
+          try device.setTorchModeOn(level: 1.0);
+        } catch {
+          print(error);
+        }
+      }
+        
+      device.unlockForConfiguration();
+    } catch {
+      print(error);
+    }
   }
 }

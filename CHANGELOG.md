@@ -1,3 +1,5 @@
+## 1.1.0
+- improve scan view load
 ## 1.0.2
 - fix some bug
 ## 1.0.1
