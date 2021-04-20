@@ -1,3 +1,5 @@
+## 1.1.1
+- fix ios config
 ## 1.1.0
 - improve scan view load
 ## 1.0.2

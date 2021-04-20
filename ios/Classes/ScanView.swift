@@ -71,7 +71,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   
   private func configSession() {
     do {
-      self.session!.beginConfiguration();
+//      self.session!.beginConfiguration();
       // add input
       var defaultVideoDevice: AVCaptureDevice?;
       if let cameraDevice =  AVCaptureDevice.default(for: .video)  {
@@ -100,7 +100,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
       
       self.session!.sessionPreset = AVCaptureSession.Preset.high;
       self.setScanArea();
-      self.session!.commitConfiguration();
+//      self.session!.commitConfiguration();
       self.session!.startRunning();
 //      self.queue!.async {
 //        self.session!.startRunning();
