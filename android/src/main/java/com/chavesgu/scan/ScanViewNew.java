@@ -59,38 +59,6 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     }
 
     private void start() {
-//        lifecycleCallback = new Application.ActivityLifecycleCallbacks() {
-//            @Override
-//            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-//            }
-//            @Override
-//            public void onActivityStarted(@NonNull Activity activity) {
-//            }
-//            @Override
-//            public void onActivityResumed(@NonNull Activity _activity) {
-//                if (activity == _activity) {
-//                    _resume();
-//                }
-//            }
-//            @Override
-//            public void onActivityPaused(@NonNull Activity _activity) {
-//                if (activity == _activity) {
-//                    _pause();
-//                }
-//            }
-//            @Override
-//            public void onActivityStopped(@NonNull Activity activity) {
-//            }
-//            @Override
-//            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
-//            }
-//            @Override
-//            public void onActivityDestroyed(@NonNull Activity _activity) {
-//                if (activity == _activity) {
-//                    _pause();
-//                }
-//            }
-//        };
         addListenLifecycle();
         this.decodeContinuous(new BarcodeCallback() {
             @Override

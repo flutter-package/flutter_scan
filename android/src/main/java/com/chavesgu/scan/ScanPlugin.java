@@ -3,6 +3,7 @@ package com.chavesgu.scan;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -13,7 +14,9 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
+import com.journeyapps.barcodescanner.CaptureActivity;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -36,6 +39,8 @@ public class ScanPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwa
   private MethodChannel channel;
   private Activity activity;
   private FlutterPluginBinding flutterPluginBinding;
+  private Result _result;
+  private QrCodeAsyncTask task;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -81,84 +86,44 @@ public class ScanPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwa
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+    _result = result;
     if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
     } else if (call.method.equals("parse")) {
-      result.success(getCodeFromImagePath((String) call.arguments));
+      String path = (String) call.arguments;
+      task = new QrCodeAsyncTask(this, path);
+      task.execute(path);
     } else {
       result.notImplemented();
     }
   }
 
-  private String getCodeFromImagePath(String path) {
-    final Map<DecodeHintType, Object> HINTS = new EnumMap<>(DecodeHintType.class);
-    List<BarcodeFormat> allFormats = new ArrayList<>();
-    allFormats.add(BarcodeFormat.AZTEC);
-    allFormats.add(BarcodeFormat.CODABAR);
-    allFormats.add(BarcodeFormat.CODE_39);
-    allFormats.add(BarcodeFormat.CODE_93);
-    allFormats.add(BarcodeFormat.CODE_128);
-    allFormats.add(BarcodeFormat.DATA_MATRIX);
-    allFormats.add(BarcodeFormat.EAN_8);
-    allFormats.add(BarcodeFormat.EAN_13);
-    allFormats.add(BarcodeFormat.ITF);
-    allFormats.add(BarcodeFormat.MAXICODE);
-    allFormats.add(BarcodeFormat.PDF_417);
-    allFormats.add(BarcodeFormat.QR_CODE);
-    allFormats.add(BarcodeFormat.RSS_14);
-    allFormats.add(BarcodeFormat.RSS_EXPANDED);
-    allFormats.add(BarcodeFormat.UPC_A);
-    allFormats.add(BarcodeFormat.UPC_E);
-    allFormats.add(BarcodeFormat.UPC_EAN_EXTENSION);
-    HINTS.put(DecodeHintType.TRY_HARDER, BarcodeFormat.QR_CODE);
-    HINTS.put(DecodeHintType.POSSIBLE_FORMATS, allFormats);
-    HINTS.put(DecodeHintType.CHARACTER_SET, "utf-8");
+  /**
+   * AsyncTask 静态内部类，防止内存泄漏
+   */
+  static class QrCodeAsyncTask extends AsyncTask<String, Integer, String> {
+    private final WeakReference<ScanPlugin> mWeakReference;
+    private final String path;
 
-    BitmapFactory.Options options = new BitmapFactory.Options();
-    options.inJustDecodeBounds = true;
-    BitmapFactory.decodeFile(path, options);
-    int sampleSize = options.outHeight / 400;
-    if (sampleSize <= 0) {
-      sampleSize = 1;
+    public QrCodeAsyncTask(ScanPlugin plugin, String path) {
+      mWeakReference = new WeakReference<>(plugin);
+      this.path = path;
     }
-    options.inSampleSize = sampleSize;
-    options.inJustDecodeBounds = false;
-    Bitmap bitmap = BitmapFactory.decodeFile(path, options);
 
-    com.google.zxing.Result result = null;
-    RGBLuminanceSource source = null;
-    try {
-      int width = bitmap.getWidth();
-      int height = bitmap.getHeight();
-      int[] pixels = new int[width * height];
-      bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-      source = new RGBLuminanceSource(width, height, pixels);
-      result = new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(source)), HINTS);
-      return result.getText();
-    } catch (Exception e) {
-      if (source != null) {
-        try {
-          result = new MultiFormatReader().decode(new BinaryBitmap(new GlobalHistogramBinarizer(source)), HINTS);
-          return result.getText();
-        } catch (Throwable e2) {
-          MultiFormatReader multiFormatReader = new MultiFormatReader();
-          try {
-            LuminanceSource invertedSource = source.invert();
-            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(invertedSource));
+    @Override
+    protected String doInBackground(String... strings) {
+      // 解析二维码/条码
+      return QRCodeDecoder.syncDecodeQRCode(path);
+    }
 
-            result = multiFormatReader.decode(binaryBitmap, HINTS);
-            return result.getText();
-          } catch (NotFoundException exception) {
-            e.printStackTrace();
-            e2.printStackTrace();
-            exception.printStackTrace();
-            return null;
-          } finally {
-            multiFormatReader.reset();
-          }
-        }
-      }
-      return null;
+    @Override
+    protected void onPostExecute(String s) {
+      super.onPostExecute(s);
+      //识别出图片二维码/条码，内容为s
+      ScanPlugin plugin = (ScanPlugin) mWeakReference.get();
+      plugin._result.success(s);
+      plugin.task.cancel(true);
+      plugin.task = null;
     }
   }
 }

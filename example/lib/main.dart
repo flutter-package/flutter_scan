@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -75,7 +77,7 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () async {
                     List<Media>? res = await ImagesPicker.pick();
                     if (res != null) {
-                      String qrcode = await Scan.parse(res[0].path!);
+                      String? qrcode = await Scan.parse(res[0].path!);
                       print(qrcode);
                     }
                   },

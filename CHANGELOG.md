@@ -1,3 +1,5 @@
+## 1.2.0
+- fix android decode qrcode from image
 ## 1.1.1
 - fix ios config
 ## 1.1.0
