@@ -1,5 +1,6 @@
 package com.chavesgu.scan;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -17,6 +18,9 @@ import com.google.zxing.MultiFormatReader;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
+import com.huawei.hms.hmsscankit.ScanUtil;
+import com.huawei.hms.ml.scan.HmsScan;
+import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -198,5 +202,18 @@ public class QRCodeDecoder {
                 }
             }
         }
+    }
+
+
+    public static String decodeQRCode(Context context, String path) {
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+
+        HmsScanAnalyzerOptions options = new HmsScanAnalyzerOptions.Creator().setPhotoMode(true).create();
+        HmsScan[] hmsScans = ScanUtil.decodeWithBitmap(context, bitmap, options);
+
+        if (hmsScans != null && hmsScans.length > 0) {
+            return hmsScans[0].getOriginalValue();
+        }
+        return syncDecodeQRCode(path);
     }
 }

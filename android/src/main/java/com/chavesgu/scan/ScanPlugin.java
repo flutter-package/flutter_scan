@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -33,6 +36,8 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+
+import static android.content.Context.VIBRATOR_SERVICE;
 
 /** ScanPlugin */
 public class ScanPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -113,7 +118,7 @@ public class ScanPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwa
     @Override
     protected String doInBackground(String... strings) {
       // 解析二维码/条码
-      return QRCodeDecoder.syncDecodeQRCode(path);
+      return QRCodeDecoder.decodeQRCode(mWeakReference.get().flutterPluginBinding.getApplicationContext(), path);
     }
 
     @Override
@@ -124,6 +129,16 @@ public class ScanPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwa
       plugin._result.success(s);
       plugin.task.cancel(true);
       plugin.task = null;
+      if (s!=null) {
+        Vibrator myVib = (Vibrator) plugin.flutterPluginBinding.getApplicationContext().getSystemService(VIBRATOR_SERVICE);
+        if (myVib != null) {
+          if (Build.VERSION.SDK_INT >= 26) {
+            myVib.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+          } else {
+            myVib.vibrate(50);
+          }
+        }
+      }
     }
   }
 }

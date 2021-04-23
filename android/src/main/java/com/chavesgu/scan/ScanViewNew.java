@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -66,7 +67,11 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
                 captureListener.onCapture(result.getText());
                 Vibrator myVib = (Vibrator) context.getSystemService(VIBRATOR_SERVICE);
                 if (myVib != null) {
-                    myVib.vibrate(50);
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        myVib.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+                        myVib.vibrate(50);
+                    }
                 }
             }
         });

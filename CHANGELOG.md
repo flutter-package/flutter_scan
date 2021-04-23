@@ -1,3 +1,5 @@
+## 1.3.0
+- add huawei sdk for android decoder
 ## 1.2.0
 - fix android decode qrcode from image
 ## 1.1.1

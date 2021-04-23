@@ -1,8 +1,8 @@
 # scan
 
-flutter widget to scan qrcode customly.
+scan qrcode in widget tree.
 
-Get qrcode from image.
+decode qrcode image from path.
 
 > if you want to generate qrcode image, you should use [qr_flutter](https://pub.dev/packages/qr_flutter)
 
