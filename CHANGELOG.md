@@ -1,3 +1,5 @@
+## 1.3.1
+- update important readme
 ## 1.3.0
 - add huawei sdk for android decoder
 ## 1.2.0
