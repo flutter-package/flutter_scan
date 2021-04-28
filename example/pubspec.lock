@@ -66,7 +66,7 @@ packages:
       name: images_picker
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.0"
+    version: "1.2.1"
   matcher:
     dependency: transitive
     description:
@@ -94,7 +94,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.2.0"
+    version: "1.4.1"
   sky_engine:
     dependency: transitive
     description: flutter

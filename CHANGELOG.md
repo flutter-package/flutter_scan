@@ -1,3 +1,7 @@
+## 1.4.1
+- fix
+## 1.4.0
+- improve decode qrcode image
 ## 1.3.1
 - update important readme
 ## 1.3.0

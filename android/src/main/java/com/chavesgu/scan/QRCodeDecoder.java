@@ -206,7 +206,15 @@ public class QRCodeDecoder {
 
 
     public static String decodeQRCode(Context context, String path) {
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        BitmapFactory.Options sizeOptions = new BitmapFactory.Options();
+        sizeOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, sizeOptions);
+        BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
+        if (sizeOptions.outWidth * sizeOptions.outHeight * 3 > 10 * 1024 * 1024) {
+            Log.i("scan", String.format("bitmap too large %d x %d",sizeOptions.outWidth, sizeOptions.outHeight));
+            decodeOptions.inSampleSize = 2;
+        }
+        Bitmap bitmap = BitmapFactory.decodeFile(path, decodeOptions);
 
         HmsScanAnalyzerOptions options = new HmsScanAnalyzerOptions.Creator().setPhotoMode(true).create();
         HmsScan[] hmsScans = ScanUtil.decodeWithBitmap(context, bitmap, options);

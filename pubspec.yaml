@@ -1,6 +1,6 @@
 name: scan
-description: scan qrcode in widget tree.decode qrcode image from path.
-version: 1.3.1
+description: scan qrcode in widget tree with custom options.Accurately decode qrcode image from path.
+version: 1.4.1
 homepage: https://github.com/chavesgu/FlutterScan
 
 environment:

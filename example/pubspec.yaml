@@ -21,7 +21,7 @@ dependencies:
     # the parent directory to use the current plugin's version.
     path: ../
 
-  images_picker: ^1.0.0
+  images_picker: ^1.2.1
 
 dev_dependencies:
   flutter_test:
