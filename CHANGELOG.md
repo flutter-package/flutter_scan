@@ -1,3 +1,5 @@
+## 1.4.3
+- add ios decode bar code
 ## 1.4.2
 - fix
 ## 1.4.1

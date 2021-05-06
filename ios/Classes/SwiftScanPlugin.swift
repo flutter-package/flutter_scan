@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import Vision
 
 public class SwiftScanPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -16,11 +17,10 @@ public class SwiftScanPlugin: NSObject, FlutterPlugin {
     } else if call.method=="parse" {
       let path = call.arguments as! String;
       if let features = self.detectQRCode(UIImage.init(contentsOfFile: path)), !features.isEmpty {
-        for case let row as CIQRCodeFeature in features{
-          result(row.messageString);
-        }
+        let data = features.first as! CIQRCodeFeature
+        result(data.messageString);
       } else {
-        result(nil);
+        self.detectBarCode(UIImage.init(contentsOfFile: path), result: result)
       }
     }
   }
@@ -40,5 +40,37 @@ public class SwiftScanPlugin: NSObject, FlutterPlugin {
       return features;
     }
     return nil
+  }
+  
+  private func detectBarCode(_ image: UIImage?, result: @escaping FlutterResult) {
+    if let image = image, let ciImage = CIImage.init(image: image), #available(iOS 11.0, *) {
+      var requestHandler: VNImageRequestHandler;
+      if ciImage.properties.keys.contains((kCGImagePropertyOrientation as String)) {
+        requestHandler = VNImageRequestHandler(ciImage: ciImage, orientation: CGImagePropertyOrientation(rawValue: ciImage.properties[(kCGImagePropertyOrientation as String)] as! UInt32) ?? .up, options: [:])
+      } else {
+        requestHandler = VNImageRequestHandler(ciImage: ciImage, orientation: .up, options: [:])
+      }
+      let request = VNDetectBarcodesRequest { (request,error) in
+        var res: String? = nil;
+        if let observations = request.results as? [VNBarcodeObservation], !observations.isEmpty {
+          let data: VNBarcodeObservation = observations.first!;
+          res = data.payloadStringValue;
+        }
+        DispatchQueue.main.async {
+          result(res);
+        }
+      }
+      DispatchQueue.global(qos: .background).async {
+        do{
+          try requestHandler.perform([request])
+        } catch {
+          DispatchQueue.main.async {
+            result(nil);
+          }
+        }
+      }
+    } else {
+      result(nil);
+    }
   }
 }

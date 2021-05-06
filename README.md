@@ -1,10 +1,10 @@
 # scan
 
-[![scan](https://img.shields.io/badge/pub-1.4.2-orange)](https://pub.dev/packages/scan)
+[![scan](https://img.shields.io/badge/pub-1.4.3-orange)](https://pub.dev/packages/scan)
 
-scan qrcode in widget tree.
+scan qrcode & barcode in widget tree.
 
-decode qrcode image from path.
+decode qrcode & barcode image from path.
 
 > if you want to generate qrcode image, you should use [qr_flutter](https://pub.dev/packages/qr_flutter)
 

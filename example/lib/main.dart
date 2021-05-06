@@ -77,8 +77,12 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () async {
                     List<Media>? res = await ImagesPicker.pick();
                     if (res != null) {
-                      String? qrcode = await Scan.parse(res[0].path!);
-                      print(qrcode);
+                      String? str = await Scan.parse(res[0].path!);
+                      if (str != null) {
+                        setState(() {
+                          qrcode = str;
+                        });
+                      }
                     }
                   },
                 ),
