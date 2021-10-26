@@ -21,9 +21,9 @@
 //import com.google.zxing.NotFoundException;
 //import com.google.zxing.PlanarYUVLuminanceSource;
 //import com.google.zxing.Result;
-//import com.google.zxing.client.android.camera.CameraManager;
 //import com.google.zxing.common.HybridBinarizer;
 //import com.google.zxing.qrcode.QRCodeReader;
+//import com.google.zxing.client.android.camera.CameraManager;
 //
 //import android.os.AsyncTask;
 //import android.os.Build;
@@ -45,6 +45,7 @@
 //
 //import androidx.annotation.NonNull;
 //import androidx.annotation.Nullable;
+//import androidx.annotation.RequiresApi;
 //import androidx.core.app.ActivityCompat;
 //import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 //import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -86,6 +87,7 @@
 //    private boolean exit = false;
 //
 //
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 //    public ScanView(Context context, Activity activity, @NonNull ActivityPluginBinding activityPluginBinding, @Nullable Map<String, Object> args) {
 //        super(context, null);
 //
@@ -107,8 +109,10 @@
 //        checkPermission();
 //    }
 //
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 //    private void initCamera() {
 //        if (checkCameraHardware()) {
+////            cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 //            cameraManager = new CameraManager(getContext());
 //            cameraManager.setPreviewCallback(this);
 //            cameraManager.setPreviewCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
@@ -170,7 +174,7 @@
 //
 //        previewWidth = cameraManager.getPreviewSize().x;
 //        previewHeight = cameraManager.getPreviewSize().y;
-////        cameraManager.setManualFramingRect((int)areaWidth, (int)areaWidth);
+//        cameraManager.setManualFramingRect((int)areaWidth, (int)areaWidth);
 //
 ////        Log.i(LOG_TAG, "preview:"+previewWidth+","+previewHeight);
 ////        Log.i(LOG_TAG, "view:"+vw+","+vh);
@@ -241,6 +245,7 @@
 //        }
 //    }
 //
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 //    private void checkPermission() {
 //        if (hasPermission()) {
 //            initCamera();
@@ -321,6 +326,7 @@
 //        return (info.orientation - degrees + 360) % 360;
 //    }
 //
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 //    @Override
 //    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 //        if (requestCode == CAMERA_REQUEST_CODE && grantResults[0] == PERMISSION_GRANTED) {

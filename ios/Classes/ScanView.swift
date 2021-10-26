@@ -25,8 +25,10 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   var scanShapeLayer: CAShapeLayer?;
   var scanColor: UIColor!;
   var needDelScanLine: Bool = false;
+  var transparentScanLine: Bool = false;
   var channel: FlutterMethodChannel?;
   
+  var _bounds: CGRect = CGRect();
   var vw:CGFloat = 0;
   var vh:CGFloat = 0;
   var scale:CGFloat = 0.7;
@@ -45,6 +47,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     let g = params["g"] as! CGFloat;
     let b = params["b"] as! CGFloat;
     let a = params["a"] as! CGFloat;
+    self.transparentScanLine = a == 0.0;
     self.scanColor = UIColor(red: r / 255.0, green: g / 255.0, blue: b / 255.0, alpha: a);
     
     let layer = AVCaptureVideoPreviewLayer(session: self.session!);
@@ -208,7 +211,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     }
     
     // 绘制扫描线
-    if !self.needDelScanLine {
+    if !self.needDelScanLine && !self.transparentScanLine {
       self.drawScanLine(areaWidth: areaWidth);
     }
   }
@@ -222,7 +225,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     scanPath.move(to: CGPoint(x: scanLineX, y: scanLineY));
     scanPath.addLine(to: CGPoint(x: scanLineX + scanLineWidth, y: scanLineY));
     let scanShapeLayer = CAShapeLayer();
-    scanShapeLayer.frame = self.bounds;
+    scanShapeLayer.frame = self._bounds;
     scanShapeLayer.path = scanPath.cgPath;
     scanShapeLayer.strokeColor = self.scanColor.withAlphaComponent(0.9).cgColor;
     scanShapeLayer.lineWidth = 2.0;
@@ -254,6 +257,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   public override func layoutSubviews() {
     super.layoutSubviews();
     self.captureLayer?.frame = self.bounds;
+    self._bounds = self.bounds;
     self.vw = self.bounds.width;
     self.vh = self.bounds.height;
     self.drawScanArea();

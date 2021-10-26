@@ -37,6 +37,7 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
     private double areaY;
     private double areaWidth;
     private int scanLineColor;
+    private boolean transparentScanLine = false;
     private double scale = .7;
     private float dpi;
     private boolean running;
@@ -54,6 +55,7 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
         final int b = (int) args.get("b");
         final double alpha = (double) args.get("a");
         final int a = max(0, min(255, (int)floor(alpha * 256.0)));
+        if (a==0) transparentScanLine = true;
         scanLineColor = Color.argb(a, r, g, b);
         this.activity = activity;
 
@@ -167,7 +169,7 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
             canvas.restore();
         }
 
-        if (running) {
+        if (running && !transparentScanLine) {
             Paint scanPaint = new Paint();
             scanPaint.setColor(scanLineColor);
             scanPaint.setStrokeWidth(2*dpi);

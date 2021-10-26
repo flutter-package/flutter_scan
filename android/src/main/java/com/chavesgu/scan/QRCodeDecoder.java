@@ -69,6 +69,16 @@ public class QRCodeDecoder {
         if (result!=null) return result.getText();
         return null;
     }
+    public static String syncDecodeQRCode(Bitmap bitmap) {
+        config();
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        byte[] mData = getYUV420sp(bitmap.getWidth(), bitmap.getHeight(), bitmap);
+
+        Result result = decodeImage(mData, width, height);
+        if (result!=null) return result.getText();
+        return null;
+    }
 
     private static Result decodeImage(byte[] data, int width, int height) {
         // 处理
@@ -223,5 +233,15 @@ public class QRCodeDecoder {
             return hmsScans[0].getOriginalValue();
         }
         return syncDecodeQRCode(path);
+    }
+
+    public static String decodeQRCode(Context context, Bitmap bitmap) {
+        HmsScanAnalyzerOptions options = new HmsScanAnalyzerOptions.Creator().setPhotoMode(true).create();
+        HmsScan[] hmsScans = ScanUtil.decodeWithBitmap(context, bitmap, options);
+
+        if (hmsScans != null && hmsScans.length > 0) {
+            return hmsScans[0].getOriginalValue();
+        }
+        return syncDecodeQRCode(bitmap);
     }
 }

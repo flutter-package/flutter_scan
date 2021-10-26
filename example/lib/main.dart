@@ -77,7 +77,7 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () async {
                     List<Media>? res = await ImagesPicker.pick();
                     if (res != null) {
-                      String? str = await Scan.parse(res[0].path!);
+                      String? str = await Scan.parse(res[0].path);
                       if (str != null) {
                         setState(() {
                           qrcode = str;
@@ -94,7 +94,7 @@ class _MyAppState extends State<MyApp> {
               child: ScanView(
                 controller: controller,
                 scanAreaScale: .7,
-                scanLineColor: Colors.green.shade400,
+                scanLineColor: Colors.green,
                 onCapture: (data) {
                   setState(() {
                     qrcode = data;

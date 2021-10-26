@@ -5,18 +5,31 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.BarcodeView;
+import com.journeyapps.barcodescanner.CameraPreview;
 import com.journeyapps.barcodescanner.Size;
+import com.journeyapps.barcodescanner.SourceData;
+import com.journeyapps.barcodescanner.camera.PreviewCallback;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -45,6 +58,8 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
     private double vw;
     private double vh;
     private double scale = .7;
+
+    private QrCodeAsyncTask task;
 
     public ScanViewNew(Context context, Activity activity, @NonNull ActivityPluginBinding activityPluginBinding, @Nullable Map<String, Object> args) {
         super(context, null);
@@ -76,6 +91,24 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
             }
         });
         _resume();
+//        final ScanViewNew _this = this;
+//        this.getCameraInstance().requestPreview(new PreviewCallback() {
+//            @Override
+//            public void onPreview(SourceData sourceData) {
+//                Log.i("scan test", "preview sourceData"+sourceData);
+//                sourceData.setCropRect(getPreviewFramingRect());
+//                Bitmap bmp = sourceData.getBitmap();
+//                if (task != null && (task.getStatus() == AsyncTask.Status.RUNNING
+//                        || task.getStatus() == AsyncTask.Status.PENDING)) return;
+//                task = new QrCodeAsyncTask(_this);
+//                task.execute(bmp);
+//            }
+//
+//            @Override
+//            public void onPreviewError(Exception e) {
+//                Log.i("scan test", "preview error"+e.getLocalizedMessage());
+//            }
+//        });
     }
 
     private void checkPermission() {
@@ -110,10 +143,14 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
         this.captureListener = captureListener;
     }
     public void dispose() {
-        this.stopDecoding();
+//        this.stopDecoding();
         _pause();
 //        activity.getApplication().unregisterActivityLifecycleCallbacks(lifecycleCallback);
 //        lifecycleCallback = null;
+        if (task != null) {
+            task.cancel(true);
+            task = null;
+        }
     }
 
     @Override
@@ -136,5 +173,44 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
         }
         Log.i(LOG_TAG, "onRequestPermissionsResult: false");
         return false;
+    }
+
+    /**
+     * AsyncTask 静态内部类，防止内存泄漏
+     */
+    static class QrCodeAsyncTask extends AsyncTask<Bitmap, Integer, String> {
+        private final WeakReference<ScanViewNew> mWeakReference;
+//        private final Bitmap bitmap;
+
+        public QrCodeAsyncTask(ScanViewNew view) {
+            mWeakReference = new WeakReference<>(view);
+//            this.bitmap = bitmap;
+        }
+
+        @Override
+        protected String doInBackground(Bitmap... params) {
+            // 解析二维码/条码
+            return QRCodeDecoder.decodeQRCode(mWeakReference.get().context, params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            //识别出图片二维码/条码，内容为s
+            ScanViewNew view = (ScanViewNew) mWeakReference.get();
+            view.captureListener.onCapture(s);
+            view.task.cancel(true);
+            view.task = null;
+            if (s!=null) {
+                Vibrator myVib = (Vibrator) view.context.getSystemService(VIBRATOR_SERVICE);
+                if (myVib != null) {
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        myVib.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+                        myVib.vibrate(50);
+                    }
+                }
+            }
+        }
     }
 }

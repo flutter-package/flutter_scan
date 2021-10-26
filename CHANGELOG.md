@@ -1,3 +1,7 @@
+## 1.5.0
+- support transparent scan line
+- fix ios ui thread bug
+- update android identify level
 ## 1.4.3
 - add ios decode bar code
 ## 1.4.2
