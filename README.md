@@ -1,6 +1,6 @@
 # scan
 
-[![scan](https://img.shields.io/badge/pub-1.4.3-orange)](https://pub.dev/packages/scan)
+[![scan](https://img.shields.io/badge/pub-1.5.0-orange)](https://pub.dev/packages/scan)
 
 scan qrcode & barcode in widget tree.
 
