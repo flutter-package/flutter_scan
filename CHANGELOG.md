@@ -1,3 +1,5 @@
+## 1.5.2
+- fix
 ## 1.5.1
 - support android invert color qrcode
 ## 1.5.0

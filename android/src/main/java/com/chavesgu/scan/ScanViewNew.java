@@ -80,7 +80,6 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
 
     private void start() {
         addListenLifecycle();
-        QRCodeDecoder.config();
         this.setDecoderFactory(new DefaultDecoderFactory(QRCodeDecoder.allFormats, QRCodeDecoder.HINTS, "utf-8", 2));
         this.decodeContinuous(new BarcodeCallback() {
             @Override

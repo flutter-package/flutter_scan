@@ -32,31 +32,31 @@ import java.util.Map;
 public class QRCodeDecoder {
     private static byte[] yuvs;
     public static int MAX_PICTURE_PIXEL = 256;
-    public static final List<BarcodeFormat> allFormats = new ArrayList<>();
-    public static final Map<DecodeHintType, Object> HINTS = new EnumMap<>(DecodeHintType.class);
+    public static final List<BarcodeFormat> allFormats = new ArrayList<BarcodeFormat>() {{
+        add(BarcodeFormat.AZTEC);
+        add(BarcodeFormat.CODABAR);
+        add(BarcodeFormat.CODE_39);
+        add(BarcodeFormat.CODE_93);
+        add(BarcodeFormat.CODE_128);
+        add(BarcodeFormat.DATA_MATRIX);
+        add(BarcodeFormat.EAN_8);
+        add(BarcodeFormat.EAN_13);
+        add(BarcodeFormat.ITF);
+        add(BarcodeFormat.MAXICODE);
+        add(BarcodeFormat.PDF_417);
+        add(BarcodeFormat.QR_CODE);
+        add(BarcodeFormat.RSS_14);
+        add(BarcodeFormat.RSS_EXPANDED);
+        add(BarcodeFormat.UPC_A);
+        add(BarcodeFormat.UPC_E);
+        add(BarcodeFormat.UPC_EAN_EXTENSION);
+    }};
+    public static final Map<DecodeHintType, Object> HINTS = new EnumMap<DecodeHintType, Object>(DecodeHintType.class) {{
+        put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+        put(DecodeHintType.POSSIBLE_FORMATS, allFormats);
+        put(DecodeHintType.CHARACTER_SET, "utf-8");
+    }};
     public static void config() {
-        HINTS.clear();
-        allFormats.add(BarcodeFormat.AZTEC);
-        allFormats.add(BarcodeFormat.CODABAR);
-        allFormats.add(BarcodeFormat.CODE_39);
-        allFormats.add(BarcodeFormat.CODE_93);
-        allFormats.add(BarcodeFormat.CODE_128);
-        allFormats.add(BarcodeFormat.DATA_MATRIX);
-        allFormats.add(BarcodeFormat.EAN_8);
-        allFormats.add(BarcodeFormat.EAN_13);
-        allFormats.add(BarcodeFormat.ITF);
-        allFormats.add(BarcodeFormat.MAXICODE);
-        allFormats.add(BarcodeFormat.PDF_417);
-        allFormats.add(BarcodeFormat.QR_CODE);
-        allFormats.add(BarcodeFormat.RSS_14);
-        allFormats.add(BarcodeFormat.RSS_EXPANDED);
-        allFormats.add(BarcodeFormat.UPC_A);
-        allFormats.add(BarcodeFormat.UPC_E);
-        allFormats.add(BarcodeFormat.UPC_EAN_EXTENSION);
-        HINTS.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-        HINTS.put(DecodeHintType.POSSIBLE_FORMATS, allFormats);
-        HINTS.put(DecodeHintType.CHARACTER_SET, "utf-8");
-//        HINTS.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
     }
     public static String syncDecodeQRCode(String path) {
         config();
