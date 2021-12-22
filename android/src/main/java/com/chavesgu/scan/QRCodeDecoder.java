@@ -32,10 +32,10 @@ import java.util.Map;
 public class QRCodeDecoder {
     private static byte[] yuvs;
     public static int MAX_PICTURE_PIXEL = 256;
+    public static final List<BarcodeFormat> allFormats = new ArrayList<>();
     public static final Map<DecodeHintType, Object> HINTS = new EnumMap<>(DecodeHintType.class);
     public static void config() {
         HINTS.clear();
-        List<BarcodeFormat> allFormats = new ArrayList<>();
         allFormats.add(BarcodeFormat.AZTEC);
         allFormats.add(BarcodeFormat.CODABAR);
         allFormats.add(BarcodeFormat.CODE_39);

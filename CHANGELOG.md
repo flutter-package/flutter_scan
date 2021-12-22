@@ -1,3 +1,5 @@
+## 1.5.1
+- support android invert color qrcode
 ## 1.5.0
 - support transparent scan line
 - fix ios ui thread bug

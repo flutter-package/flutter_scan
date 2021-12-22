@@ -17,10 +17,13 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.qrcode.QRCodeReader;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.BarcodeView;
 import com.journeyapps.barcodescanner.CameraPreview;
+import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.journeyapps.barcodescanner.Size;
 import com.journeyapps.barcodescanner.SourceData;
 import com.journeyapps.barcodescanner.camera.PreviewCallback;
@@ -30,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.util.EnumMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -76,6 +80,8 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
 
     private void start() {
         addListenLifecycle();
+        QRCodeDecoder.config();
+        this.setDecoderFactory(new DefaultDecoderFactory(QRCodeDecoder.allFormats, QRCodeDecoder.HINTS, "utf-8", 2));
         this.decodeContinuous(new BarcodeCallback() {
             @Override
             public void barcodeResult(BarcodeResult result) {
