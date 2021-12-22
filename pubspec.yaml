@@ -1,6 +1,6 @@
 name: scan
 description: scan qrcode & barcode in widget tree with custom options.Accurately decode qrcode & barcode image from path.
-version: 1.5.2
+version: 1.6.0
 homepage: https://github.com/flutter-package/flutter_scan
 
 environment:

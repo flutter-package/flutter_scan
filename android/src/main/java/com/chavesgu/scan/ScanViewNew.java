@@ -166,6 +166,8 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
         if (scale < 1.0) {
             int areaWidth = (int) (min(vw, vh) * scale);
             this.setFramingRectSize(new Size(areaWidth, areaWidth));
+        } else {
+            this.setFramingRectSize(new Size((int) vw, (int) vh));
         }
     }
 

@@ -1,3 +1,5 @@
+## 1.6.0
+- fix important scan area bug
 ## 1.5.2
 - fix
 ## 1.5.1
