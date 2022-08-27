@@ -32,6 +32,8 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
   var vw:CGFloat = 0;
   var vh:CGFloat = 0;
   var scale:CGFloat = 0.7;
+
+  var up = 80.0 ;
   
   init(_ frame:CGRect, viewId:Int64, args: Any?,registrar: FlutterPluginRegistrar) {
     super.init(frame: frame);
@@ -43,6 +45,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     
     let params = args as! NSDictionary;
     self.scale = params["scale"] as! CGFloat;
+    self.up = params["up"] as! CGFloat;
     let r = params["r"] as! CGFloat;
     let g = params["g"] as! CGFloat;
     let b = params["b"] as! CGFloat;
@@ -155,7 +158,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     let scale:CGFloat = self.scale;
     let areaWidth = min(self.vw, self.vh) * scale;
     let x = (self.vw - areaWidth) / 2;
-    let y = (self.vh - areaWidth) / 2;
+    let y = (self.vh - areaWidth) / 2 - up;
     let shortWidth:CGFloat = areaWidth * 0.1;
     let joinWidth:CGFloat = 0.5;
     
@@ -221,7 +224,7 @@ public class ScanView: UIView,AVCaptureMetadataOutputObjectsDelegate,FlutterPlug
     let scanPath = UIBezierPath();
     let scanLineWidth = areaWidth * 0.8;
     let scanLineX = (self.vw - scanLineWidth) / 2;
-    let scanLineY = (self.vh - scanLineWidth) / 2;
+    let scanLineY = (self.vh - scanLineWidth) / 2 - up;
     scanPath.move(to: CGPoint(x: scanLineX, y: scanLineY));
     scanPath.addLine(to: CGPoint(x: scanLineX + scanLineWidth, y: scanLineY));
     let scanShapeLayer = CAShapeLayer();

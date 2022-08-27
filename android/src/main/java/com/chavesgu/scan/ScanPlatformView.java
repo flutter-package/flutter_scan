@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.View;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -29,6 +30,7 @@ public class ScanPlatformView implements PlatformView, MethodChannel.MethodCallH
     private ScanViewNew scanViewNew;
     private ScanDrawView scanDrawView;
     private boolean flashlight;
+    private int up = 80;
 
     ScanPlatformView(@NonNull BinaryMessenger messenger, @NonNull Context context, @NonNull Activity activity, ActivityPluginBinding activityPluginBinding, int viewId, @Nullable Map<String, Object> args) {
         channel = new MethodChannel(messenger, "chavesgu/scan/method_"+viewId);
@@ -44,7 +46,7 @@ public class ScanPlatformView implements PlatformView, MethodChannel.MethodCallH
         this.scanViewNew.setCaptureListener(this);
 
         this.scanDrawView = new ScanDrawView(context, activity, args);
-
+        this.up = BigDecimal.valueOf((double) args.get("up")).intValue();
         this.parentView = new ParentView(context);
         this.parentView.addView(this.scanViewNew);
         this.parentView.addView(this.scanDrawView);
