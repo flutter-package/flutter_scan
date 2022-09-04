@@ -58,7 +58,7 @@ class _ScanViewState extends State<ScanView> {
           _onPlatformViewCreated(id);
         },
       );
-    } else {
+    } else if (Platform.isAndroid) {
       return AndroidView(
         viewType: 'chavesgu/scan_view',
         creationParamsCodec: StandardMessageCodec(),
@@ -75,6 +75,7 @@ class _ScanViewState extends State<ScanView> {
         },
       );
     }
+    throw Exception('not support from ${Platform.operatingSystem}!');
   }
 
   void _onPlatformViewCreated(int id) {

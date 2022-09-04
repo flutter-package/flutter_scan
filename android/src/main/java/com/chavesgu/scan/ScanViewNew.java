@@ -93,6 +93,7 @@ public class ScanViewNew extends BarcodeView implements PluginRegistry.RequestPe
                         myVib.vibrate(50);
                     }
                 }
+
             }
         });
         _resume();
