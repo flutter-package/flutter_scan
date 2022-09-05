@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.View;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -44,7 +45,6 @@ public class ScanPlatformView implements PlatformView, MethodChannel.MethodCallH
         this.scanViewNew.setCaptureListener(this);
 
         this.scanDrawView = new ScanDrawView(context, activity, args);
-
         this.parentView = new ParentView(context);
         this.parentView.addView(this.scanViewNew);
         this.parentView.addView(this.scanDrawView);

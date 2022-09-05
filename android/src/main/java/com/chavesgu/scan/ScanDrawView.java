@@ -18,8 +18,11 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
+import android.widget.RelativeLayout;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import androidx.annotation.Nullable;
@@ -39,6 +42,7 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
     private int scanLineColor;
     private boolean transparentScanLine = false;
     private double scale = .7;
+    private float up = 80.0f;
     private float dpi;
     private boolean running;
 
@@ -54,6 +58,8 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
         final int g = (int) args.get("g");
         final int b = (int) args.get("b");
         final double alpha = (double) args.get("a");
+        up = BigDecimal.valueOf((double) args.get("up")).floatValue();
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         final int a = max(0, min(255, (int)floor(alpha * 256.0)));
         if (a==0) transparentScanLine = true;
         scanLineColor = Color.argb(a, r, g, b);
@@ -75,8 +81,8 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
         vw = width;
         vh = height;
         areaWidth = min(vw, vh) * scale;
-        areaX = (vw - areaWidth) / 2;
-        areaY = (vh - areaWidth) / 2;
+        areaX = (vw - areaWidth) / 2 ;
+        areaY = (vh - areaWidth) / 2 ;
 
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -128,12 +134,12 @@ public class ScanDrawView extends SurfaceView implements SurfaceHolder.Callback 
 
     private void drawing(Canvas canvas) {
         final float x = (float) areaX;
-        final float y = (float) areaY;
+        final float y = (float) areaY - up;
         final float width = (float) areaWidth;
         final float shortWidth = (float) (areaWidth * 0.1);
         final float scanLineWidth = (float) (areaWidth * 0.8);
         final float scanLineX = (float) (vw - scanLineWidth)/2;
-        final float scanLineY = (float) (vh - scanLineWidth)/2;
+        final float scanLineY = (float) (vh - scanLineWidth)/2 - up;
 
         if (scale < 1) {
             Paint paint = new Paint();

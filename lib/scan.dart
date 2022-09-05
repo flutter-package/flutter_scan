@@ -23,6 +23,7 @@ class ScanView extends StatefulWidget {
     this.onCapture,
     this.scanLineColor = Colors.green,
     this.scanAreaScale = 0.7,
+    this.horizontalHeight = 80.0,
   })  : assert(scanAreaScale <= 1.0, 'scanAreaScale must <= 1.0'),
         assert(scanAreaScale > 0.0, 'scanAreaScale must > 0.0');
 
@@ -30,6 +31,7 @@ class ScanView extends StatefulWidget {
   final CaptureCallback? onCapture;
   final Color scanLineColor;
   final double scanAreaScale;
+  final double horizontalHeight;
 
   @override
   State<StatefulWidget> createState() => _ScanViewState();
@@ -50,12 +52,13 @@ class _ScanViewState extends State<ScanView> {
           "b": widget.scanLineColor.blue,
           "a": widget.scanLineColor.opacity,
           "scale": widget.scanAreaScale,
+          "up": widget.horizontalHeight,
         },
         onPlatformViewCreated: (id) {
           _onPlatformViewCreated(id);
         },
       );
-    } else {
+    } else if (Platform.isAndroid) {
       return AndroidView(
         viewType: 'chavesgu/scan_view',
         creationParamsCodec: StandardMessageCodec(),
@@ -65,12 +68,14 @@ class _ScanViewState extends State<ScanView> {
           "b": widget.scanLineColor.blue,
           "a": widget.scanLineColor.opacity,
           "scale": widget.scanAreaScale,
+          "up": widget.horizontalHeight,
         },
         onPlatformViewCreated: (id) {
           _onPlatformViewCreated(id);
         },
       );
     }
+    throw Exception('not support from ${Platform.operatingSystem}!');
   }
 
   void _onPlatformViewCreated(int id) {
